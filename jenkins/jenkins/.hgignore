@@ -1,0 +1,4 @@
+syntax: glob
+.env
+docker-compose.yml
+build_up.sh

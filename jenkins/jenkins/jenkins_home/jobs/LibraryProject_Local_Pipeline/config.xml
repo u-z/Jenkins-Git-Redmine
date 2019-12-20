@@ -1,0 +1,124 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.24">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.3.1"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.3.1">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers>
+        <hudson.triggers.SCMTrigger>
+          <spec></spec>
+          <ignorePostCommitHooks>false</ignorePostCommitHooks>
+        </hudson.triggers.SCMTrigger>
+      </triggers>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.54">
+    <script>pipeline {
+    agent { label &apos;master&apos; }
+//    agent { docker &apos;okazakiyuji/maven:latest&apos; }
+    stages {
+        stage(&apos;checkout&apos;) {
+            steps {
+                sh &apos;svn co --non-interactive --username admin --password admin &quot;http://kanon01/svn/SampleProject/LibraryProject/trunk&quot;&apos;
+            }
+        }
+        stage(&apos;compile&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn compile&apos;
+            }
+        }
+        stage(&apos;checkstyle&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn checkstyle:checkstyle&apos;
+            }
+            post {
+                always {
+                    dir(&apos;trunk&apos;) {
+                        checkstyle canComputeNew: false, defaultEncoding: &apos;&apos;, healthy: &apos;&apos;, pattern: &apos;target/checkstyle-result.xml&apos;, unHealthy: &apos;&apos;
+                    }
+                }
+            }
+        }
+        stage(&apos;findbugs&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn findbugs:findbugs&apos;
+            }
+            post {
+                always {
+                    dir(&apos;trunk&apos;) {
+                        findbugs canComputeNew: false, canRunOnFailed: true, defaultEncoding: &apos;&apos;, excludePattern: &apos;&apos;, healthy: &apos;&apos;, includePattern: &apos;&apos;, pattern: &apos;target/findbugsXml.xml&apos;, unHealthy: &apos;&apos;
+                        sh &apos;cat target/findbugsXml.xml&apos;
+                    }
+                }
+            }
+        }
+        stage(&apos;cobertura&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn cobertura:cobertura&apos;
+            }
+            post {
+                always {
+                    dir(&apos;trunk&apos;) {
+                        cobertura coberturaReportFile: &apos;**/target/site/cobertura/coverage.xml&apos;
+                    }
+                }
+            }
+        }
+        stage(&apos;pmd&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn pmd:pmd&apos;
+            }
+            post {
+                always {
+                    dir(&apos;trunk&apos;) {
+                        pmd canComputeNew: false, defaultEncoding: &apos;&apos;, healthy: &apos;&apos;, pattern: &apos;**/pmd.xml&apos;, unHealthy: &apos;&apos;
+                    }
+                }
+            }
+        }
+        stage(&apos;javadoc&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn javadoc:aggregate&apos;
+            }
+            post {
+                always {
+                    archiveArtifacts &apos;trunk/target/site/apidocs/&apos;
+                }
+            }
+        }
+        stage(&apos;surefire-report&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn surefire-report:report&apos;
+            }
+            post {
+                always {
+                    archiveArtifacts &apos;trunk/target/surefire-reports/&apos;
+                }
+            }
+        }
+        stage(&apos;site&apos;) {
+            steps {
+                sh &apos;cd trunk &amp;&amp; mvn site&apos;
+            }
+        }
+
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
