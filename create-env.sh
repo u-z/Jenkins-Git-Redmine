@@ -1,5 +1,5 @@
 #!/bin/bash -e
-CONTAINERS=jenkins,kanon01
+CONTAINERS=gitlab,redis,postgresql,redmine
 # https_proxyが設定されていた場合はproxyありの環境と認識する
 if [ "$https_proxy" != '' ]; then
     # ビルド時に使用する環境変数
