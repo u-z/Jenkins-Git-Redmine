@@ -1,0 +1,20 @@
+################################################
+gitlab_rails['env'] = { 
+  'http_proxy'  => 'HTTP_PROXY',
+  'https_proxy' => 'HTTPS_PROXY',
+  'no_proxy' => 'NO_PROXY'
+}
+gitaly['env'] = {
+  'http_proxy'  => 'HTTP_PROXY',
+  'https_proxy' => 'HTTPS_PROXY',
+  'no_proxy' => 'NO_PROXY'
+}
+gitlab_workhorse['env'] = {
+  'http_proxy'  => 'HTTP_PROXY',
+  'https_proxy' => 'HTTPS_PROXY'
+}
+registry['env'] = {
+  'http_proxy'  => 'HTTP_PROXY',
+  'https_proxy' => 'HTTPS_PROXY'
+}
+
