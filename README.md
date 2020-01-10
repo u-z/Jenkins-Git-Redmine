@@ -39,7 +39,9 @@
 * create-env.sh:環境変数から.envファイルを作成するスクリプト
 
 ## Gitlab
-サブフォルダのgitlabをビルドして使用する
+サブフォルダのgitlabをビルドして使用する  
+[ここで](https://docs.gitlab.com/omnibus/docker/#run-the-image)動かし方が書いてあるので
+
 
 ### フォルダ
 ```

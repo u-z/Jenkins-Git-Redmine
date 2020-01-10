@@ -20,3 +20,4 @@ else
         touch .env
     fi
 fi
+echo GITLAB_OMNIBUS_CONFG=\"external_url \'http://$HOSTNAME:10180\'\" >> .env
