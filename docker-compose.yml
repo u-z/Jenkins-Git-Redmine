@@ -27,10 +27,11 @@ services:
     - redis
     - postgresql
     ports:
-    - "10080:80"
-    - "10022:22"
+    - "10380:80"
+    - "10322:22"
     volumes:
     - gitlab-data:/home/git/data:Z
+    env_file: .env
     environment:
     - DEBUG=false
 
@@ -44,21 +45,22 @@ services:
     - REDIS_HOST=redis
     - REDIS_PORT=6379
 
-    - TZ=Asia/Kolkata
-    - GITLAB_TIMEZONE=Kolkata
+    - TZ=Asia/Tokyo
+    - GITLAB_TIMEZONE=Tokyo
 
     - GITLAB_HTTPS=false
     - SSL_SELF_SIGNED=false
 
-    - GITLAB_HOST=localhost
-    - GITLAB_PORT=10080
-    - GITLAB_SSH_PORT=10022
+    #- GITLAB_HOST=localhost
+    - GITLAB_HOST=elara.syh.socionext.com:10380
+    - GITLAB_PORT=80
+    - GITLAB_SSH_PORT=22
     - GITLAB_RELATIVE_URL_ROOT=
     - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
     - GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alphanumeric-string
     - GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alphanumeric-string
 
-    - GITLAB_ROOT_PASSWORD=
+    - GITLAB_ROOT_PASSWORD=testtest
     - GITLAB_ROOT_EMAIL=
 
     - GITLAB_NOTIFY_ON_BROKEN_BUILDS=true
@@ -151,42 +153,79 @@ services:
     - OAUTH_AZURE_API_SECRET=
     - OAUTH_AZURE_TENANT_ID=
 
-  redmine:
-    container_name: redmine
-    image: redmine
-    restart: always
-    ports:
-      - 10090:3000
-    volumes:
-      - redmine-plugin:/usr/src/redmine/plugins
-      - redmine-themes:/usr/src/redmine/public/themes
-    environment:
-      REDMINE_DB_MYSQL: redmine-db
-      REDMINE_DB_PASSWORD: redmine
-
   redmine-db:
-    image: mariadb
-    container_name: redmine-db
-    restart: always
+    image: sameersbn/mysql:5.7.22-1
     environment:
-        MYSQL_ROOT_PASSWORD: redmine
-        MYSQL_DATABASE: redmine
+    - DB_USER=redmine
+    - DB_PASS=password
+    - DB_NAME=redmine_production
     volumes:
-      - redmine-db-data:/var/lib/mysql
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    - redmine-db:/var/lib/mysql
+
+  redmine:
+    image: sameersbn/redmine:4.1.0
+    depends_on:
+    - redmine-db
+    env_file: .env
+    environment:
+    - TZ=Asia/Tokyo
+
+    - DB_ADAPTER=mysql2
+    - DB_HOST=redmine-db
+    - DB_PORT=3306
+    - DB_USER=redmine
+    - DB_PASS=password
+    - DB_NAME=redmine_production
+
+    - REDMINE_PORT=10381 # exterlal port no
+    - REDMINE_HTTPS=false
+    - REDMINE_RELATIVE_URL_ROOT=
+    - REDMINE_SECRET_TOKEN=
+
+    - REDMINE_SUDO_MODE_ENABLED=false
+    - REDMINE_SUDO_MODE_TIMEOUT=15
+
+    - REDMINE_CONCURRENT_UPLOADS=2
+
+    - REDMINE_BACKUP_SCHEDULE=
+    - REDMINE_BACKUP_EXPIRY=
+    - REDMINE_BACKUP_TIME=
+
+    - SMTP_ENABLED=false
+    - SMTP_METHOD=smtp
+    - SMTP_DOMAIN=www.example.com
+    - SMTP_HOST=smtp.gmail.com
+    - SMTP_PORT=587
+    - SMTP_USER=mailer@example.com
+    - SMTP_PASS=password
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=:login
+
+    - IMAP_ENABLED=false
+    - IMAP_HOST=imap.gmail.com
+    - IMAP_PORT=993
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
+    - IMAP_SSL=true
+    - IMAP_INTERVAL=30
+
+    ports:
+    - 10381:80
+    volumes:
+    - redmine:/home/redmine/data
 
   master:
-    container_name: master
     image: jenkins:latest
+    env_file: .env
     ports:
-      - 10091:8080
+      - 10382:8080
     volumes:
-      - ./jenkins_home:/var/jenkins_home
+      - jenkins-master:/var/jenkins_home
 
 volumes:
   redis-data:
   postgresql-data:
   gitlab-data:
-  redmine-plugin:
-  redmine-themes:
-  redmine-db-data:
+  redmine:
+  redmine-db:
+  jenkins-master:
