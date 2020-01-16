@@ -215,8 +215,11 @@ services:
     - redmine:/home/redmine/data
 
   master:
-    image: jenkins:latest
+    build: jenkins/
+    #image: jenkins:latest
     env_file: .env
+    #environment:
+    #  - JAVA_OPTS="-Duser.timezone=Asia/Tokyo -Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxyPort=${PROXY_PORT} -Dhttps.proxyHost=${PROXY_HOST} -Dhttps.proxyPort=${PROXY_PORT}" 
     ports:
       - 10382:8080
     volumes:

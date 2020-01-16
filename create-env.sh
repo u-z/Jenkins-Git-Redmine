@@ -14,10 +14,23 @@ if [ "$https_proxy" != '' ]; then
     echo http_proxy=$http_proxy > .env
     echo https_proxy=$https_proxy >>.env
     echo no_proxy=$no_proxy >> .env
-else
-    # proxy設定がない場合はファイルだけ作成する
-    if [ ! -e .env ]; then
-        touch .env
+    if [ "$https_proxy" != '' ]; then
+        # https_proxyを分解します
+        PROXY_STR=${https_proxy/*:\/\//}
+        WORK=${PROXY_STR%@*}
+        PROXY_USER=""
+        PROXY_PW=""
+        if [ "$WORK" != "$PROXY_STR" ]; then
+            PROXY_USER=${WORK%:*}
+            PROXY_PW=${WORK#*:}
+            WORK=${PROXY_STR#*@}
+        fi
+        PROXY_HOST=${WORK%:*}
+        PROXY_PORT=${WORK#*:}
+        #echo JAVA_OPTS="-Duser.timezone=Asia/Tokyo -Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxy=${PROXY_PORT} -Dhttp.proxyPort=${PROXY_PORT} -Dhttps.proxyHost=${PROXY_HOST} -Dhttps.proxyPort=${PROXY_PORT}" >> .env
+        #echo JAVA_OPTS="-Duser.timezone=Asia/Tokyo" >> .env
     fi
+else
+    #echo JAVA_OPTS="-Duser.timezone=Asia/Tokyo" > .env
+    touch .env
 fi
-echo GITLAB_OMNIBUS_CONFG=\"external_url \'http://$HOSTNAME:10180\'\" >> .env

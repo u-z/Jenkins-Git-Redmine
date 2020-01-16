@@ -1,20 +1,24 @@
-FROM jenkins/jenkins:latest
+#FROM jenkins/jenkins:2.60.3 これはだめだった
+#FROM jenkins/jenkins:latest
+#FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:2.204.1
 
 USER root
-ARG HTTP_PROXY
-ARG HTTPS_PROXY
-ARG NO_PROXY
 
 COPY init.groovy.d/* /usr/share/jenkins/ref/init.groovy.d/
-RUN mkdir -p /usr/share/jenkins/ref/plugins
-COPY plugins/* /usr/share/jenkins/ref/plugins/
+#RUN mkdir -p /usr/share/jenkins/ref/plugins
+# COPY plugins/* /usr/share/jenkins/ref/plugins/
 # add jenkins user
 RUN mkdir /home/jenkins && chown jenkins:jenkins /home/jenkins && usermod -d /home/jenkins jenkins
 
 # add docker group
 # ARG DOCKER_GROUP_ID
 # RUN groupadd -g ${DOCKER_GROUP_ID} docker && usermod -aG ${DOCKER_GROUP_ID} jenkins
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
+# ENV JAVA_OPTS="-Duser.timezone=Asia/Tokyo -Djenkins.install.runSetupWizard=false"
+ENV JAVA_OPTS="-Duser.timezone=Asia/Tokyo"
 # # install docker, docker-compose
 # ARG DOCKER_VERSION=18.09.1
 # RUN curl -fL -o docker.tgz "https://download.docker.com/linux/static/test/x86_64/docker-$DOCKER_VERSION.tgz" && \
