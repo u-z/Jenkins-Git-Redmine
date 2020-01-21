@@ -52,7 +52,7 @@ services:
     - SSL_SELF_SIGNED=false
 
     #- GITLAB_HOST=localhost
-    - GITLAB_HOST=elara.syh.socionext.com:10380
+    - GITLAB_HOST=despina.syh.socionext.com:10380
     - GITLAB_PORT=80
     - GITLAB_SSH_PORT=22
     - GITLAB_RELATIVE_URL_ROOT=
@@ -153,6 +153,9 @@ services:
     - OAUTH_AZURE_API_SECRET=
     - OAUTH_AZURE_TENANT_ID=
 
+# ここを参照した
+# https://github.com/sameersbn/docker-redmine/blob/master/docker-compose-mysql.y
+
   redmine-db:
     image: sameersbn/mysql:5.7.22-1
     environment:
@@ -214,12 +217,17 @@ services:
     volumes:
     - redmine:/home/redmine/data
 
+
   master:
     build: jenkins/
     #image: jenkins:latest
     env_file: .env
-    #environment:
+    #environment:結局何をやってもアクセスログは出力されない
+    #- JENKINS_OPT="--accessLoggerClassName=winstone.accesslog.SimpleAccessLogger --simpleAccessLogger.format=combined --simpleAccessLogger.file=/var/jenkins_home/logs/access_log"
+    #- JENKINS_OPTS = "--accessLoggerClassName=winstone.accesslog.SimpleAccessLogger --simpleAccessLogger.format=combined --simpleAccessLogger.file=/var/jenkins_home/logs/access_log"
+    #- JENKINS_OPTS="--accessLoggerClassName=winstone.accesslog.SimpleAccessLogger --simpleAccessLogger.format=combined --simpleAccessLogger.file=/var/jenkins_home/access.log"
     #  - JAVA_OPTS="-Duser.timezone=Asia/Tokyo -Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxyPort=${PROXY_PORT} -Dhttps.proxyHost=${PROXY_HOST} -Dhttps.proxyPort=${PROXY_PORT}" 
+    #- JAVA_OPTS="--env JAVA_OPTS="-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
     ports:
       - 10382:8080
     volumes:

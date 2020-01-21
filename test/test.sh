@@ -7,7 +7,8 @@ PRJ=admin-test
 if [[ ! -d $PRJ ]]; then
   echo gitのバージョンが古い場合はno_proxyに自ホストが入ってないとエラーになります。
   echo no_proxy:$no_proxy
-  git clone http://$USER:$PW@$HOSTNAME:$1/$USER/$PRJ.git
+  # git clone http://$USER:$PW@$HOSTNAME:$1/$USER/$PRJ.git
+  git clone http://$USER:$PW@localhost:$1/$USER/$PRJ.git
 else
   echo gitのフォルダが存在しています
 fi
