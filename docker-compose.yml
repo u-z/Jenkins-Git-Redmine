@@ -33,7 +33,7 @@ services:
     - gitlab-data:/home/git/data:Z
     env_file: .env
     environment:
-    - DEBUG=false
+    - DEBUG=true
 
     - DB_ADAPTER=postgresql
     - DB_HOST=postgresql
@@ -52,7 +52,8 @@ services:
     - SSL_SELF_SIGNED=false
 
     #- GITLAB_HOST=localhost
-    - GITLAB_HOST=despina.syh.socionext.com:10380
+    - GITLAB_HOST=gitlab
+    #- GITLAB_HOST=despina.syh.socionext.com:10380
     - GITLAB_PORT=80
     - GITLAB_SSH_PORT=22
     - GITLAB_RELATIVE_URL_ROOT=
@@ -166,7 +167,8 @@ services:
     - redmine-db:/var/lib/mysql
 
   redmine:
-    image: sameersbn/redmine:4.1.0
+    #image: sameersbn/redmine:4.1.0
+    build: redmine
     depends_on:
     - redmine-db
     env_file: .env
